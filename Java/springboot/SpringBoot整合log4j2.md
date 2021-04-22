@@ -2,11 +2,11 @@
 
 ### 本文内容为: Spring Boot 整合log4j2 并配置自动归档与删除,以及控制台日志答应时添加颜色显示
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在spring boot 项目中日志框架默认使用的是logback, 而logback 早在2017年就已经不再更新稳定版本了，并且Apache日志框架log4g2(作为log4g的升级版本)，性能优异(如下图)，尤其是异步性能拉开logback与log4j一大截，并且默认以零GC的模式（不会由于log4j2导致GC）运行。除此之外，log4j2 还拥有更高性能I/O写入支持，更强大的参数格式化功能。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在spring boot 项目中日志框架默认使用的是logback, 而logback 早在2017年就已经不再更新稳定版本了，并且Apache日志框架log4g2(作为log4g的升级版本)，性能优异(如下图)，尤其是异步性能拉开logback与log4j一大截，并且默认以零GC的模式（不会由于log4j2导致GC）运行。除此之外，log4j2 还拥有更高性能I/O写入支持`，`更强大的参数格式化功能。
 
-![pic1](http://eddyzhou.gitee.io/picture-bed/202101/AeAzbU.png )
+![pic1][pic1]
 
-![pic2](https://raw.githubusercontent.com/EddyZhou97/picture-bed/master/images/202101/20210420193256.png)
+![pic2][]
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;接下来将介绍如何在spring boot中使用log4j2替代logback框架
 
@@ -66,21 +66,29 @@
         </console>
 
         <!-- 这个会打印出所有的info及以下级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
-        <RollingFile name="RollingFileInfo" fileName="${FILE_PATH}/spring.log" filePattern="${FILE_PATH}/${FILE_NAME}.log.%d{yyyy-MM-dd}_%i.log.gz">
+        <RollingFile name="RollingFileInfo" fileName="${env:FILE_PATH}/spring.log" filePattern="${env:FILE_PATH}/${FILE_NAME}.log.%d{yyyy-MM-dd}_%i.log.gz">
             <Filters>
                 <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
                 <!-- 只记录ERROR级别日志信息，程序打印的其他信息不会被记录 -->
                 <!-- 此level设置的日志级别，是过滤日志文件中打印出的日志信息，和Root的level有所区别 -->
                 <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
             </Filters>
-            <PatternLayout pattern="${sys:FILE_LOG_PATTERN}"/>
+            <PatternLayout pattern="${env:FILE_LOG_PATTERN}"/>
             <Policies>
-                <!--interval属性用来指定多久滚动一次，默认是1 hour-->
-                <TimeBasedTriggeringPolicy/>
+                <!--interval属性用来指定多久滚动一次，默认是1, 单位与filePattern中设置的时间最小单位一致-->
+                <TimeBasedTriggeringPolicy interval="1"/>
                 <SizeBasedTriggeringPolicy size="1MB"/>
             </Policies>
-            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件开始覆盖-->
-            <DefaultRolloverStrategy max="10"/>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一时间范围下7个文件开始覆盖-->
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="${env:FILE_PATH}/" maxDepth="2">
+                    <IfFileName glob="*.log.gz" />
+                    <!--!Note: 这里的age必须和filePattern协调, 后者是精确到HH, 这里就要写成xH, xd就不起作用
+                    另外, 数字最好大于2, 否则可能造成删除的时候, 最近的文件还处于被占用状态,导致删除不成功!-->
+                    <!--7天-->
+                    <IfLastModified age="600s" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
 
     </appenders>
@@ -103,7 +111,14 @@
 
 ```
 
+3. 参数解释
+   - 
+
 参考链接:
+
+- [log4j2官方文档](https://logging.apache.org/log4j/2.x/manual/appenders.html#TriggeringPolicies)
 - [Spring Boot 实战 —— 日志框架 Log4j2 SLF4J 的学习](https://michael728.github.io/2019/08/10/java-spring-boot-log4j2/ )
 - [spring boot logging 默认配置](https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/log4j2/log4j2.xml )
 
+[pic1]: http://eddyzhou.gitee.io/picture-bed/202101/AeAzbU.png
+[pic2]: https://raw.githubusercontent.com/EddyZhou97/picture-bed/master/images/202101/20210420193256.png
