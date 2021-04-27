@@ -119,6 +119,7 @@
 - [log4j2官方文档](https://logging.apache.org/log4j/2.x/manual/appenders.html#TriggeringPolicies)
 - [Spring Boot 实战 —— 日志框架 Log4j2 SLF4J 的学习](https://michael728.github.io/2019/08/10/java-spring-boot-log4j2/ )
 - [spring boot logging 默认配置](https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/log4j2/log4j2.xml )
+- [根据系统属性、环境变量动态设置log4j2日志路径](https://blog.csdn.net/wangww3/article/details/107021181)
 
 [pic1]: http://eddyzhou.gitee.io/picture-bed/202101/AeAzbU.png
 [pic2]: https://raw.githubusercontent.com/EddyZhou97/picture-bed/master/images/202101/20210420193256.png
