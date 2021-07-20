@@ -26,3 +26,12 @@ B-->F[2]
 B-->G[3]
 ```
 
+
+
+![pic1][pic1]
+
+![pic2][]
+
+[pic1]: http://eddyzhou.gitee.io/picture-bed/202101/AeAzbU.png	"Gitee 地址"
+[pic2]: https://raw.githubusercontent.com/eddie-zhou-yi/picture-bed/master/images/202101/20210420193256.png	"GitHub 地址"
+
